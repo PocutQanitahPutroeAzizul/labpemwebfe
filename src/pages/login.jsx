@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "https://studiosnap-backend.vercel.app";
+const API_URL = "https://labpemwebbe.vercel.app/";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -103,3 +103,4 @@ const Login = () => {
 };
 
 export default Login;
+
