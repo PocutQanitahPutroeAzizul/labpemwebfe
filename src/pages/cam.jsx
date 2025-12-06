@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; 
 
 export default function CamPage() {
   const navigate = useNavigate();
-  const API_URL = "https://labpemwebbe.vercel.app"; 
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -27,31 +25,7 @@ export default function CamPage() {
     filterRef.current = filter;
   }, [filter]);
 
-  useEffect(() => {
-    const startSession = async () => {
-      try {
-        const userStr = localStorage.getItem("user");
-        if (!userStr) return;
-        const user = JSON.parse(userStr);
-
-        const response = await axios.post(`${API_URL}/api/start-session`, {
-          user_id: user.id || user._id, 
-          filter: "normal", 
-        });
-
-        if (response.data && response.data.data) {
-          const sessionId = response.data.data.session_id;
-          localStorage.setItem("current_session_id", sessionId);
-          console.log("✅ Session Started, ID:", sessionId);
-        }
-      } catch (error) {
-        console.error("❌ Failed to start photo session:", error);
-      }
-    };
-
-    startSession();
-  }, []);
-
+  // Load layout config
   useEffect(() => {
     const configJson = localStorage.getItem("layoutConfig");
 
@@ -365,12 +339,12 @@ export default function CamPage() {
             onClick={() => !isCapturing && setFilter(f.value)}
             disabled={isCapturing}
             className={`filter-option border-2 border-white rounded-[50px] px-[18px] py-[8px] mx-[5px] font-semibold transition 
-            ${
-              filter === f.value
-                ? "bg-white text-[#610049]"
-                : "bg-transparent text-white hover:bg-white hover:text-[#610049]"
-            }
-            ${isCapturing ? "opacity-50 cursor-not-allowed" : ""}
+              ${
+                filter === f.value
+                  ? "bg-white text-[#610049]"
+                  : "bg-transparent text-white hover:bg-white hover:text-[#610049]"
+              }
+              ${isCapturing ? "opacity-50 cursor-not-allowed" : ""}
             `}
           >
             {f.name}

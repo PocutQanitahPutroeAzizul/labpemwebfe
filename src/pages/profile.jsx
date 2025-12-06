@@ -6,6 +6,10 @@ const API_URL = "https://labpemwebbe.vercel.app";
 const Profile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [stats, setStats] = useState({
+    total_photos: 0,
+    favorite_photos: 0
+  });
 
   const [isEditing, setIsEditing] = useState(false);
   const [editUsername, setEditUsername] = useState("");
@@ -23,6 +27,20 @@ const Profile = () => {
     type: "",
   });
 
+  // Fungsi fetch stats dipisah agar bisa dipanggil ulang jika perlu
+  const fetchUserStats = async (userId) => {
+    try {
+      const response = await fetch(`${API_URL}/api/photos/statistics/${userId}`);
+      const data = await response.json();
+      
+      if (response.ok && data.data) {
+        setStats(data.data); 
+      }
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+    }
+  };
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData && userData !== "undefined") {
@@ -31,6 +49,10 @@ const Profile = () => {
         setUser(parsedUser);
         setEditUsername(parsedUser.username);
         setEditEmail(parsedUser.email);
+        
+        // Panggil fungsi statistik saat halaman dimuat
+        fetchUserStats(parsedUser.id || parsedUser._id);
+
       } catch (error) {
         console.error("Data error:", error);
         localStorage.removeItem("user");
@@ -205,7 +227,7 @@ const Profile = () => {
         </div>
       )}
 
-      <div className="relative bg-white p-5 pb-8 shadow-[0_20px_50px_rgba(97,0,73,0.3)] border border-gray-200 w-80 transform -rotate-2 hover:rotate-0 transition-transform duration-500 ease-in-out">
+      <div className="relative bg-white p-5 pb-8 shadow-[0_20px_50px_rgba(97,0,73,0.3)] border border-gray-200 w-120 h-200 mt-[-20px] transform -rotate-2 hover:rotate-0 transition-transform duration-500 ease-in-out">
         <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 h-10 bg-[#FCF9E9]/80 backdrop-blur-sm border border-[#610049]/10 rotate-1 shadow-sm z-10"></div>
 
         <div className="bg-[#FCF9E9] w-full aspect-[4/4] border border-[#610049]/10 flex flex-col items-center justify-center mb-6 relative overflow-hidden">
@@ -237,19 +259,22 @@ const Profile = () => {
               <h1 className="text-3xl font-extrabold text-[#610049] mb-1 font-[Montserrat]">
                 {user.username || "User"}
               </h1>
-              <p className="text-gray-400 text-sm font-mono mb-6">
+              <p className="text-gray-400 text-lg font-mono mb-6">
                 {user.email || "No Email"}
               </p>
             </>
           )}
 
-          <div className="w-full border-t-2 border-dashed border-[#610049]/20 mb-6"></div>
+          <div className="w-full border-t-2 border-dashed border-[#610049]/20 mb-6 mt-4"></div>
 
           <div className="flex flex-col gap-3">
+              <p className="text-sm font-bold uppercase tracking-widest text-[#610049] py-1 mt-53border border-transparent"> 
+                Photos Taken : {stats.total_photos || 0}
+              </p>
             {!isEditing && (
               <button
                 onClick={() => navigate("/layout")}
-                className="text-xs font-bold uppercase tracking-widest text-[#610049] hover:bg-[#FCF9E9] py-2 border border-transparent hover:border-[#610049] transition-all"
+                className="text-sm font-bold uppercase tracking-widest text-[#610049] hover:bg-[#FCF9E9] py-2 mt-53border border-transparent hover:border-[#610049] transition-all"
               >
                 + Take New Photo
               </button>
@@ -273,13 +298,13 @@ const Profile = () => {
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="text-xs font-bold uppercase tracking-widest text-blue-600 hover:text-blue-800 py-2"
+                className="text-sm font-bold uppercase tracking-widest text-blue-600 hover:text-blue-800 py-2"
               >
                 Edit Profile
               </button>
             )}
 
-            <div className="flex justify-between mt-2 pt-2 border-t border-gray-100">
+            <div className="flex justify-between mt-3 pt-2 border-t border-gray-100">
               <button
                 onClick={handleLogoutClick}
                 className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-600"
