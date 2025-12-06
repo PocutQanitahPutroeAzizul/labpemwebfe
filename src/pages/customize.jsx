@@ -13,6 +13,7 @@ export default function CustomizeStrip() {
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const stripRef = useRef(null);
+  
   const API_BASE_URL = "https://labpemwebbe.vercel.app";
 
   const [popup, setPopup] = useState({
@@ -108,19 +109,34 @@ export default function CustomizeStrip() {
       });
       return;
     }
+    
+    const storedSessionId = localStorage.getItem("current_session_id");
+    const userStr = localStorage.getItem("user");
+    let userId = 1;
+
+    if (userStr) {
+        try {
+            const u = JSON.parse(userStr);
+            userId = u.id || u._id || 1;
+        } catch (e) { console.error(e); }
+    }
+
+    console.log("Mengirim feedback dengan Session ID:", storedSessionId);
+
     setIsSubmitting(true);
     try {
       await axios.post(`${API_BASE_URL}/api/feedback`, {
-        session_id: null,
-        user_id: 1,
+        session_id: storedSessionId ? parseInt(storedSessionId) : null, 
+        user_id: userId,
         rating: rating,
         comment: comment,
       });
       setFeedbackSent(true);
     } catch (error) {
+      console.error("Feedback Error:", error.response?.data || error.message);
       setPopup({
         show: true,
-        message: "Failed to send feedback, but thanks anyway!",
+        message: "Failed to send feedback. Check console.",
         type: "error",
       });
     } finally {
@@ -210,7 +226,6 @@ export default function CustomizeStrip() {
 
         <div className="flex flex-col items-center lg:items-start gap-6 w-full max-w-lg">
           <div className="w-full space-y-6">
-            {/* COLOR PICKER & DOWNLOAD BOX */}
             <div className="bg-[#FCF9E9] rounded-3xl shadow-lg border border-gray-100 p-6 sm:p-8 w-full">
               <h2 className="text-lg font-bold text-[#610049] mb-4 flex items-center gap-2">
                 Choose Frame Color
